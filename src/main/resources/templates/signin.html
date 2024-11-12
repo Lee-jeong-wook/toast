@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Title</title>
+</head>
+<body>
+<style>
+  html{
+    height: 1000px;
+  }
+  body{
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    height: 100%;
+    align-items: center;
+  }
+  form{
+    width: 500px;
+    border: 1px solid #888;
+    height: 600px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    box-shadow: 10px 10px 10px #555;
+    border-radius: 10px;
+  }
+  h1{
+    border-bottom: 0.3px solid #333;
+    width: 400px;
+    text-align: center;
+  }
+  .main{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 20px;
+  }
+  .main > div{
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+  }
+  button{
+    width: 80%;
+    background: #66f;
+    border: 0.3px solid #fff;
+    height: 50px;
+    font-size: 18px;
+    color: #fff;
+  }
+  input{
+    width: 300px;
+    height: 30px;
+    border: 1px solid #aaa;
+    border-radius: 10px;
+  }
+</style>
+<form action="">
+  <h1>SIGN IN</h1>
+  <div class="main">
+    <div>
+      <label>
+        <input type="text" maxlength="30" name="id" placeholder="아이디" required>
+      </label>
+      <label>
+        <input type="password" maxlength="50" name="password" placeholder="비밀번호" required>
+      </label>
+      <label>
+        <input type="text" maxlength="20" name="name" placeholder="이름" required>
+      </label>
+      <label>
+        <input type="text" maxlength="14" name="identity" placeholder="주민번호" required>
+      </label>
+      <label>
+        <input type="text" maxlength="100" name="email" placeholder="이메일" required>
+      </label>
+      <label>
+        <input type="text" maxlength="12" name="contact" placeholder="연락처" required>
+      </label>
+      <label>
+        <input type="text" maxlength="100" name="address" placeholder="주소" required>
+      </label>
+    </div>
+  </div>
+  <button>
+    회원가입
+  </button>
+</form>
+</body>
+<script>
+  (() => {
+    window.addEventListener('DOMContentLoaded', () => {
+      const form = document.querySelector("form");
+
+      form.addEventListener("submit", (event) => {
+        event.preventDefault();
+        const formData = new FormData(form);
+
+        form.querySelectorAll("input").forEach(e => {
+          e.value = "";
+        })
+        let idx = 0;
+        for (const x of formData.entries()) {
+          idx++;
+          console.log(x);
+          if(x[1] === null || x[1].trim() === "") {
+            return alert("유효하지 않습니다.");
+          };
+        };
+        if (idx !== form.querySelectorAll("input").length) {
+          return alert("유효하지 않습니다.")
+        };
+        fetch("/signin", {method: 'POST',body:formData})
+                .then(response => response.json())
+                .then(res=>alert(res));
+      })
+    });
+  })();
+</script>
+</html>
