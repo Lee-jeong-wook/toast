@@ -15,7 +15,8 @@ import org.springframework.security.web.SecurityFilterChain;
 @Configuration
 public class SecurityConfiguration {
 
-    private final UserService  userService;
+    private final UserService userService;
+
     public SecurityConfiguration(UserService userService) {
         this.userService = userService;
     }
@@ -30,13 +31,13 @@ public class SecurityConfiguration {
                         registry
                                 .requestMatchers("/login").permitAll()
                                 .requestMatchers("/signin").permitAll()
-                                .requestMatchers("/fonts/**", "/images/**","/styles/**","/scripts/**").permitAll()
+                                .requestMatchers("/fonts/**", "/images/**", "/styles/**", "/scripts/**").permitAll()
                                 .anyRequest().authenticated()
                 )
                 .formLogin(
                         config -> config.loginPage("/login")
                                 .loginProcessingUrl("/login-process")
-                                .defaultSuccessUrl("/home")
+                                .defaultSuccessUrl("/")
                                 .usernameParameter("id")
                                 .passwordParameter("password")
                                 .failureHandler((request, response, exception) -> {
@@ -46,6 +47,7 @@ public class SecurityConfiguration {
                 )
                 .build();
     }
+
     @Bean
     PasswordEncoder passwordEncoder() {
         return new PasswordEncoder() {
@@ -60,14 +62,15 @@ public class SecurityConfiguration {
             }
         };
     }
+
     @Bean
-    AuthenticationProvider userAuthenticationProvider(){
+    AuthenticationProvider userAuthenticationProvider() {
         UserAuthenticationProvider userAuthenticationProvider = new UserAuthenticationProvider();
 
-        userAuthenticationProvider.setUserDetailsService(userId ->{
+        userAuthenticationProvider.setUserDetailsService(userId -> {
             final Customer customer = this.userService.getCustomerById(userId);
             System.out.println("customer: " + customer);
-            if(customer == null) {
+            if (customer == null) {
                 String message = "%s 아이디를 가진 유저가 없습니다".formatted(userId);
                 System.out.println(message);
                 throw new UsernameNotFoundException(message);
@@ -78,5 +81,7 @@ public class SecurityConfiguration {
         });
         userAuthenticationProvider.setPasswordEncoder(this.passwordEncoder());
         return userAuthenticationProvider;
-    };
+    }
+
+    ;
 }

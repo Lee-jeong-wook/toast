@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <style>
+        .main{
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .account{
+            width: 800px;
+            background: #ff5;
+            border-radius: 15px;
+            box-shadow: 0px 10px 10px #ccc;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
+        .account span{
+            display: inline-block;
+            width: 250px;
+        }
+        .account .amount{
+            font-size: 24px;
+        }
+        .dormant{
+            background: #5e5e5e;
+        }
+    </style>
+</head>
+<body>
+    <div class="main">
+        <nav>
+            <span th:text="|${user.getUsername()}님|" class="user-name" >
+            </span>
+        </nav>
+        <div class="account">
+            <span class="bank">
+                토스뱅크
+            </span>
+            <span class="account-number">
+                1111-11-11111111
+            </span>
+            <span class="amount">
+                99999999999원
+            </span>
+        </div>
+    </div>
+</body>
+</html>
