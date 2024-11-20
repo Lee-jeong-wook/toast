@@ -15,60 +15,33 @@ public class Customer {
 
     @NotNull
     @NotEmpty(message = "가 입력되지 않았습니다.")
-    private String name;
+    private String alias;
 
-    @NotNull
-    @NotEmpty(message = "가 입력되지 않았습니다.")
-    private String identity;
+    private People people;
 
-    @NotNull
-    @NotEmpty(message = "가 입력되지 않았습니다.")
-    private String email;
+    public People getPeople() {
+        return people;
+    }
 
-    @NotNull
-    @NotEmpty(message = "가 입력되지 않았습니다.")
-    private String contact;
-
-    @NotNull
-    @NotEmpty(message = "가 입력되지 않았습니다.")
-    private String address;
-
-    public Customer(
-        String id,
-        String password,
-        String name,
-        String identity,
-        String email,
-        String contact,
-        String address
-    ) {
+    public Customer(String id, String password, String alias) {
         this.id = id;
         this.password = password;
-        this.name = name;
-        this.identity = identity;
-        this.email = email;
-        this.contact = contact;
-        this.address = address;
+        this.alias = alias;
     }
 
-    public String getPassword() {
-        return password;
-    }
-
-    public String getId() {
+    public @NotNull @NotEmpty(message = "가 입력되지 않았습니다.") String getId() {
         return id;
     }
 
-    public String getName() {
-        return name;
+    public @NotNull() @NotEmpty(message = "가 입력되지 않았습니다.") String getPassword() {
+        return password;
     }
 
-    public String getIdentity() {
-        return identity;
+    public @NotNull @NotEmpty(message = "가 입력되지 않았습니다.") String getAlias() {
+        return alias;
     }
 
-    public String getEmail() {
-        return email;
+    public void setPeople(People people) {
+        this.people = people;
     }
-
 }

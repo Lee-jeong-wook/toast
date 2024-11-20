@@ -4,6 +4,10 @@
     <meta charset="UTF-8">
     <title>Title</title>
     <style>
+        body{
+            display: flex;
+            flex-direction: column;
+        }
         .main{
             display: flex;
             flex-direction: column;
@@ -11,43 +15,208 @@
         }
         .account{
             width: 800px;
+            min-width: 800px;
             background: #ff5;
             border-radius: 15px;
             box-shadow: 0px 10px 10px #ccc;
             display: flex;
             flex-direction: column;
-            align-items: center;
+            justify-content: space-between;
             padding: 20px;
+            margin-bottom: 10px;
         }
-        .account span{
-            display: inline-block;
-            width: 250px;
+        .bank-wrap{
+            width: 1000px;
+            overflow: hidden;
         }
-        .account .amount{
+        .bank{
+            user-select: none;
+            display: flex;
+            gap: 100px;
+            transition: 0.3s;
+            padding: 10px;
+        }
+        .info{
+            width: 100%;
+        }
+        .name{
             font-size: 24px;
         }
-        .dormant{
-            background: #5e5e5e;
+        .alias{
+            font-size: 12px;
+        }
+        .amount{
+            font-size: 24px;
+        }
+        p{
+            margin: 0;
+        }
+        .money-info{
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        .other{
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: end;
+            color: #666
+        }
+        dialog {
+            padding: 0;
+            width: 300px;
+            height: 500px;
+            border: 0;
+            overflow: hidden;
+        }
+
+        dialog::backdrop {
+            background: rgba(0, 0, 0, 0.5);
         }
     </style>
 </head>
 <body>
+    <dialog>
+        <div class="dialog-container" >
+            <h3>This is modal</h3>
+            <span>modal text</span>
+            <form method="dialog">
+                <input type="text" name="ba_number" class="ba_number" disabled>
+                <input type="text" name="tar_number" class="tar_number" required>
+                <input type="number" name="amount" required>
+                <input type="text" name = "memo">
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                <button type="submit">전송하기</button>
+                <button>close</button>
+            </form>
+        </div>
+    </dialog>
     <div class="main">
         <nav>
-            <span th:text="|${user.getUsername()}님|" class="user-name" >
+            <span th:text="|${user.getName()}님|" class="user-name" >
             </span>
         </nav>
-        <div class="account">
-            <span class="bank">
-                토스뱅크
-            </span>
-            <span class="account-number">
-                1111-11-11111111
-            </span>
-            <span class="amount">
-                99999999999원
-            </span>
+        <div class="bank-wrap">
+            <div class="bank">
+                <li th:each="bankAccount : ${user.bankAccounts}" th:with="bankBook=${bankAccount.bankBook}" class="account">
+                    <div class="info">
+                        <p th:text="| ${bankBook.name}|" class="name"></p>
+                        <p th:text="|${bankAccount.alias}|" class="alias"></p>
+                    </div>
+                    <div class="money-info">
+                        <p th:text="|${bankAccount.number}|" class="number"></p>
+                        <p th:text="|${bankAccount.amount}원|" class="amount"></p>
+                    </div>
+                    <div class="other">
+                        <p th:text="| ${bankAccount.createDateTime}|" class="date"></p>
+                        <p th:text="|${bankBook.interestRate}%|" class="rate"></p>
+                    </div>
+                    <ol>
+                        <li th:each="bankAccountHistory: ${bankAccount.history}">
+                            <p th:text="${bankAccountHistory.amount}"></p>
+                            <p th:text="${bankAccountHistory.transDateTime}"></p>
+                            <p th:text="${bankAccountHistory.memo}"></p>
+                            <p th:text="${bankAccountHistory.beforeAmount}"></p>
+                            <p th:text="${bankAccountHistory.type}"></p>
+                        </li>
+                    </ol>
+                    <button th:id="${bankAccount.number}">
+                        송금하기
+                    </button>
+                </li>
+            </div>
         </div>
     </div>
+<script th:inline="javascript">
+    const slide = document.querySelector(".bank-wrap");
+    let slideWidth = 940;
+    const slideItems = document.querySelector(".bank");
+    const items = slideItems.querySelectorAll("li");
+    const maxSlide = items.length;
+    let currSlide = 1;
+    function nextMove() {
+        currSlide++;
+        if (currSlide <= maxSlide) {
+            const offset = -slideWidth * (currSlide - 1);
+            slideItems.style.marginLeft = `${offset}px`;
+        } else {
+            currSlide--;
+        }
+    }
+    function prevMove() {
+        currSlide--;
+        // 1번째 슬라이드 이하로 넘어가지 않게 하기 위해서
+        console.log("prev");
+        if (currSlide > 0) {
+            const offset = -slideWidth * (currSlide - 1);
+            slideItems.style.marginLeft = `${offset}px`;
+        } else {
+            currSlide++;
+        }
+    }
+
+    // 브라우저 화면이 조정될 때 마다 slideWidth를 변경하기 위해
+    window.addEventListener("resize", () => {
+        slideWidth = slide.clientWidth;
+    });
+
+    // 드래그(스와이프) 이벤트를 위한 변수 초기화
+    let startPoint = 0;
+    let endPoint = 0;
+
+    // PC 클릭 이벤트 (드래그)
+    slide.addEventListener("mousedown", (e) => {
+        if(e.target.nodeName === "BUTTON") return;
+        startPoint = e.pageX;
+    });
+
+    slide.addEventListener("mouseup", (e) => {
+        if(e.target.nodeName === "BUTTON") return;
+        endPoint = e.pageX;
+        if (startPoint < endPoint) {
+            prevMove();
+        } else if (startPoint > endPoint) {
+            nextMove();
+        }
+    });
+    const activeModalButton = document.querySelectorAll('.bank button')
+    const modal = document.querySelector('dialog')
+
+    activeModalButton.forEach(e => {
+      e.addEventListener('click', () => {
+            console.log(e);
+            modal.querySelector(".ba_number").value = e.getAttribute("id");
+            modal.showModal();
+        })
+    })
+
+    modal.addEventListener('click', (e) => {
+        if(e.target === e.currentTarget) modal.close();
+    })
+    window.addEventListener('DOMContentLoaded', () => {
+        const form = document.querySelector("form");
+
+        form.addEventListener("submit", (event) => {
+            event.preventDefault();
+            console.log(form.ba_number.value);
+            const formData = new FormData();
+            const csrfTokenName = /*[[${_csrf.parameterName}]]*/ '';
+            const csrfTokenValue = /*[[${_csrf.token}]]*/ '';
+
+            formData.append(csrfTokenName, csrfTokenValue);
+            console.log(form.ba_number);
+            console.log(`/remittance?ba_number=${form.ba_number.value}&tar_number=${form.tar_number.value}&amount=${form.amount.value}&memo=${form.memo.value}`);
+             fetch(`/remittance?ba_number=${form.ba_number.value}&tar_number=${form.tar_number.value}&amount=${form.amount.value}&memo=${form.memo.value}`, {
+                 method: 'POST',
+                 body: formData
+             })
+             .then(response => response.text())
+             .then(message=> alert(message));
+        })
+    });
+</script>
 </body>
 </html>

@@ -1,5 +1,6 @@
 package kr.hs.sdh.toast.controller;
 
+import kr.hs.sdh.toast.model.CustomerDetails;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Controller;
@@ -21,7 +22,7 @@ public class BankController {
         return "home";
     }
     @GetMapping("/")
-    public String main(@AuthenticationPrincipal User user, Model model) {
+    public String main(@AuthenticationPrincipal CustomerDetails user, Model model) {
         model.addAttribute("user", user);
         return "index";
     }

@@ -14,10 +14,7 @@ public class UserService {
     }
 
     public Customer getCustomer(String id, String password) {
-        System.out.println("sssssss " + userRepository.toString());
         Customer customer = this.userRepository.getCustomer(id, password);
-        System.out.println("id:   " + id + " " + password);
-        System.out.println(customer.getName());
         return customer;
     }
     public void setCustomer(Customer customer){
@@ -25,7 +22,6 @@ public class UserService {
     }
 
     public Customer getCustomerById(String id) {
-        Customer customer = this.userRepository.getCustomerById(id);
-        return customer;
+        return this.userRepository.getCustomerById(id);
     }
 }

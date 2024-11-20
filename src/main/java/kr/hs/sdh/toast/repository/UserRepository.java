@@ -6,6 +6,7 @@ import org.springframework.stereotype.Repository;
 
 @Mapper
 public interface UserRepository {
+    String PEOPLE = "kr.hs.sdh.toast.repository.PeopleRepository.people";
 
     @Results(value = {
             @Result(column = "c_id", property = "id"),
@@ -23,6 +24,16 @@ public interface UserRepository {
             "c_contact, c_address)VALUES (#{id}, #{password}, #{name}, #{identity}, #{email}, #{contact}, #{address} )")
     public void setCustomer(Customer customer);
 
-    @Select("select * from customer where c_id = #{id}")
+    @Results(id = "customer" ,value = {
+            @Result(column = "c_id", property = "id"),
+            @Result(column = "c_password", property = "password"),
+            @Result(column = "c_alias", property = "alias"),
+            @Result(column = "p_uuid", property = "people", one = @One(resultMap = PeopleRepository.PEOPLE)),
+    })
+    @Select("")
+    Customer customer();
+
+    @ResultMap("customer")
+    @Select("select * from customer join people on customer.p_uuid = people.p_uuid   where c_id = #{id}")
     public Customer getCustomerById(String id);
 }

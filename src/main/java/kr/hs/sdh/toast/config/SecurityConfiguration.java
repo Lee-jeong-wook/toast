@@ -1,7 +1,10 @@
 package kr.hs.sdh.toast.config;
 
 import kr.hs.sdh.toast.Provider.UserAuthenticationProvider;
+import kr.hs.sdh.toast.entity.BankAccount;
 import kr.hs.sdh.toast.entity.Customer;
+import kr.hs.sdh.toast.model.CustomerDetails;
+import kr.hs.sdh.toast.repository.BankAccountRepository;
 import kr.hs.sdh.toast.service.UserService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -12,13 +15,17 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 
+import java.util.List;
+
 @Configuration
 public class SecurityConfiguration {
 
     private final UserService userService;
+    private final BankAccountRepository bankAccountRepository;
 
-    public SecurityConfiguration(UserService userService) {
+    public SecurityConfiguration(UserService userService, BankAccountRepository bankAccountRepository) {
         this.userService = userService;
+        this.bankAccountRepository = bankAccountRepository;
     }
 
     @Bean
@@ -68,16 +75,15 @@ public class SecurityConfiguration {
         UserAuthenticationProvider userAuthenticationProvider = new UserAuthenticationProvider();
 
         userAuthenticationProvider.setUserDetailsService(userId -> {
+
             final Customer customer = this.userService.getCustomerById(userId);
-            System.out.println("customer: " + customer);
             if (customer == null) {
                 String message = "%s 아이디를 가진 유저가 없습니다".formatted(userId);
-                System.out.println(message);
                 throw new UsernameNotFoundException(message);
             }
-            return User.withUsername(customer.getId())
-                    .password(customer.getPassword())
-                    .build();
+            final String identity = customer.getPeople().getIdentity();
+            final List<BankAccount> bankAccount = this.bankAccountRepository.findAllbyIdentity(identity);
+            return new CustomerDetails(customer, bankAccount);
         });
         userAuthenticationProvider.setPasswordEncoder(this.passwordEncoder());
         return userAuthenticationProvider;
